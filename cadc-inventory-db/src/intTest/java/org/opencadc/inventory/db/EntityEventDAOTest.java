@@ -97,7 +97,7 @@ public class EntityEventDAOTest {
     private static final Logger log = Logger.getLogger(EntityEventDAOTest.class);
 
     static {
-        Log4jInit.setLevel("org.opencadc.inventory", Level.INFO);
+        Log4jInit.setLevel("org.opencadc.inventory", Level.DEBUG);
         Log4jInit.setLevel("ca.nrc.cadc.db.version", Level.INFO);
     }
     
@@ -148,7 +148,7 @@ public class EntityEventDAOTest {
     @Test
     public void testPutGetDeletedArtifactEvent() {
         try {
-            DeletedArtifactEvent expected = new DeletedArtifactEvent(UUID.randomUUID());
+            DeletedArtifactEvent expected = new DeletedArtifactEvent(UUID.randomUUID(), null);
             log.info("expected: " + expected);
             
             DeletedArtifactEvent notFound = daeDAO.get(expected.getID());
@@ -166,16 +166,18 @@ public class EntityEventDAOTest {
             // get by ID
             DeletedArtifactEvent fid = (DeletedArtifactEvent) daeDAO.get(expected.getID());
             Assert.assertNotNull(fid);
+            Assert.assertNull(fid.uri);
             
             Assert.assertEquals("lastModified", expected.getLastModified(), fid.getLastModified());
             
             // idempotent put: create new instance with same state
-            DeletedArtifactEvent dupe = new DeletedArtifactEvent(expected.getID());
+            DeletedArtifactEvent dupe = new DeletedArtifactEvent(expected.getID(), null);
             Thread.sleep(10L);
             daeDAO.put(dupe);
             
             DeletedArtifactEvent fid2 = (DeletedArtifactEvent) daeDAO.get(expected.getID());
             Assert.assertNotNull(fid2);
+            Assert.assertNull(fid2.uri);
             // idempotent includes not updating timestamp
             Assert.assertEquals("lastModified", expected.getLastModified(), fid2.getLastModified());
             
@@ -189,7 +191,7 @@ public class EntityEventDAOTest {
     @Test
     public void testPutDeletedArtifactEvent_LastModifiedUpdate() {
         try {
-            DeletedArtifactEvent expected = new DeletedArtifactEvent(UUID.randomUUID());
+            DeletedArtifactEvent expected = new DeletedArtifactEvent(UUID.randomUUID(), null);
             log.info("expected: " + expected);
             
             DeletedArtifactEvent notFound = daeDAO.get(expected.getID());
@@ -210,6 +212,7 @@ public class EntityEventDAOTest {
             // get by ID
             DeletedArtifactEvent fid = (DeletedArtifactEvent) daeDAO.get(expected.getID());
             Assert.assertNotNull(fid);
+            Assert.assertNull(fid.uri);
             
             Assert.assertTrue("lastModified", fid.getLastModified().after(now));
             
@@ -219,6 +222,7 @@ public class EntityEventDAOTest {
             
             DeletedArtifactEvent fid2 = (DeletedArtifactEvent) daeDAO.get(expected.getID());
             Assert.assertNotNull(fid2);
+            Assert.assertNull(fid2.uri);
             Assert.assertEquals("lastModified", fid.getLastModified(), fid2.getLastModified());
             
             // no delete
@@ -231,7 +235,7 @@ public class EntityEventDAOTest {
     @Test
     public void testPutGetDeletedStorageLocationEvent() {
         try {
-            DeletedStorageLocationEvent expected = new DeletedStorageLocationEvent(UUID.randomUUID());
+            DeletedStorageLocationEvent expected = new DeletedStorageLocationEvent(UUID.randomUUID(), null);
             log.info("expected: " + expected);
             
             DeletedStorageLocationEvent notFound = dslDAO.get(expected.getID());
@@ -249,14 +253,16 @@ public class EntityEventDAOTest {
             // get by ID
             DeletedStorageLocationEvent fid = dslDAO.get(expected.getID());
             Assert.assertNotNull(fid);
-
+            Assert.assertNull(fid.uri);
+            
             // idempotent put: create new instance with same state            
-            DeletedStorageLocationEvent dupe = new DeletedStorageLocationEvent(expected.getID());
+            DeletedStorageLocationEvent dupe = new DeletedStorageLocationEvent(expected.getID(), null);
             Thread.sleep(10L);
             dslDAO.put(dupe);
             
             DeletedStorageLocationEvent fid2 = dslDAO.get(expected.getID());
             Assert.assertNotNull(fid2);
+            Assert.assertNull(fid2.uri);
             // idempotent includes not updating timestamp
             Assert.assertEquals("lastModified", expected.getLastModified(), fid2.getLastModified());
             
@@ -273,7 +279,7 @@ public class EntityEventDAOTest {
     @Test
     public void testPutGetStorageLocationEvent() {
         try {
-            StorageLocationEvent expected = new StorageLocationEvent(UUID.randomUUID());
+            StorageLocationEvent expected = new StorageLocationEvent(UUID.randomUUID(), null);
             log.info("expected: " + expected);
             
             StorageLocationEvent notFound = slDAO.get(expected.getID());
@@ -291,14 +297,16 @@ public class EntityEventDAOTest {
             // get by ID
             StorageLocationEvent fid = slDAO.get(expected.getID());
             Assert.assertNotNull(fid);
+            Assert.assertNull(fid.uri);
 
             // idempotent put: create new instance with same state            
-            StorageLocationEvent dupe = new StorageLocationEvent(expected.getID());
+            StorageLocationEvent dupe = new StorageLocationEvent(expected.getID(), null);
             Thread.sleep(10L);
             slDAO.put(dupe);
             
             StorageLocationEvent fid2 = slDAO.get(expected.getID());
             Assert.assertNotNull(fid2);
+            Assert.assertNull(fid2.uri);
             // idempotent includes not updating timestamp
             Assert.assertEquals("lastModified", expected.getLastModified(), fid2.getLastModified());
             
@@ -312,7 +320,7 @@ public class EntityEventDAOTest {
     @Test
     public void testCopyConstructorDAE() {
         try {
-            DeletedArtifactEvent expected = new DeletedArtifactEvent(UUID.randomUUID());
+            DeletedArtifactEvent expected = new DeletedArtifactEvent(UUID.randomUUID(), null);
             log.info("expected: " + expected);
             
             DeletedArtifactEvent notFound = daeDAO.get(expected.getID());
@@ -331,6 +339,7 @@ public class EntityEventDAOTest {
             DeletedArtifactEventDAO cp = new DeletedArtifactEventDAO(daeDAO);
             DeletedArtifactEvent fid = (DeletedArtifactEvent) cp.get(DeletedArtifactEvent.class, expected.getID());
             Assert.assertNotNull(fid);
+            Assert.assertNull(fid.uri);
             
             // no delete
         } catch (Exception unexpected) {
@@ -342,7 +351,7 @@ public class EntityEventDAOTest {
     @Test
     public void testCopyConstructorDSL() {
         try {
-            DeletedStorageLocationEvent expected = new DeletedStorageLocationEvent(UUID.randomUUID());
+            DeletedStorageLocationEvent expected = new DeletedStorageLocationEvent(UUID.randomUUID(), null);
             log.info("expected: " + expected);
             
             DeletedStorageLocationEvent notFound = dslDAO.get(expected.getID());
@@ -361,6 +370,7 @@ public class EntityEventDAOTest {
             DeletedStorageLocationEventDAO cp = new DeletedStorageLocationEventDAO(daeDAO);
             DeletedStorageLocationEvent fid = cp.get(expected.getID());
             Assert.assertNotNull(fid);
+            Assert.assertNull(fid.uri);
             
             // no delete
         } catch (Exception unexpected) {
