@@ -83,7 +83,7 @@ import org.opencadc.tap.TapRowMapper;
 public class StorageLocationEventRowMapper implements TapRowMapper<StorageLocationEvent> {
     private static final Logger log = Logger.getLogger(StorageLocationEventRowMapper.class);
 
-    public static final String BASE_QUERY = "SELECT id, lastModified, metaChecksum "
+    public static final String BASE_QUERY = "SELECT uri, id, lastModified, metaChecksum "
         + "FROM inventory.StorageLocationEvent";
     
     public StorageLocationEventRowMapper() { 
@@ -92,11 +92,14 @@ public class StorageLocationEventRowMapper implements TapRowMapper<StorageLocati
     @Override
     public StorageLocationEvent mapRow(List<Object> row) {
         int index = 0;
-        final UUID id = (UUID) row.get(index++);
-
-        final StorageLocationEvent ret = new StorageLocationEvent(id);
-        InventoryUtil.assignLastModified(ret, (Date) row.get(index++));
-        InventoryUtil.assignMetaChecksum(ret, (URI) row.get(index));
+        URI uri = (URI) row.get(index++);
+        UUID id = (UUID) row.get(index++);
+        Date lastModified = (Date) row.get(index++);
+        URI metaChecksum = (URI) row.get(index++);
+        
+        StorageLocationEvent ret = new StorageLocationEvent(id, uri);
+        InventoryUtil.assignLastModified(ret, (Date) lastModified);
+        InventoryUtil.assignMetaChecksum(ret, (URI) metaChecksum);
         return ret;
     }
 }
