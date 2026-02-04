@@ -133,8 +133,8 @@ public class DeletedStorageLocationEventSyncTest {
                     Assert.assertNotNull(emptyIterator);
                     Assert.assertFalse(emptyIterator.hasNext());
 
-                    DeletedStorageLocationEvent expected1 = new DeletedStorageLocationEvent(UUID.randomUUID());
-                    DeletedStorageLocationEvent expected2 = new DeletedStorageLocationEvent(UUID.randomUUID());
+                    DeletedStorageLocationEvent expected1 = new DeletedStorageLocationEvent(UUID.randomUUID(), URI.create("cadc:TEST/alpha"));
+                    DeletedStorageLocationEvent expected2 = new DeletedStorageLocationEvent(UUID.randomUUID(), URI.create("cadc:TEST/beta"));
 
                     luskanEnvironment.deletedStorageLocationEventDAO.put(expected1);
                     luskanEnvironment.deletedStorageLocationEventDAO.put(expected2);
@@ -195,9 +195,9 @@ public class DeletedStorageLocationEventSyncTest {
             Thread.sleep(10L);
             
             // insert 2 dsle in luskan
-            DeletedStorageLocationEvent dsle1 = new DeletedStorageLocationEvent(a1.getID());
+            DeletedStorageLocationEvent dsle1 = new DeletedStorageLocationEvent(a1.getID(), a1.getURI());
             luskanEnvironment.deletedStorageLocationEventDAO.put(dsle1);
-            DeletedStorageLocationEvent dsle2 = new DeletedStorageLocationEvent(a2.getID());
+            DeletedStorageLocationEvent dsle2 = new DeletedStorageLocationEvent(a2.getID(), a2.getURI());
             luskanEnvironment.deletedStorageLocationEventDAO.put(dsle2);
             Thread.sleep(10L);
             

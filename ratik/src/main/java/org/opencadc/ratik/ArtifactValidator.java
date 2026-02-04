@@ -227,7 +227,8 @@ public class ArtifactValidator {
                                 this.artifactDAO.delete(local.getID());
 
                                 if (current.storageLocation != null) {
-                                    DeletedStorageLocationEvent deletedStorageLocationEvent = new DeletedStorageLocationEvent(local.getID());
+                                    DeletedStorageLocationEvent deletedStorageLocationEvent = new DeletedStorageLocationEvent(local.getID(),
+                                        local.getURI());
                                     log.info(String.format(
                                         "ArtifactValidator.createDeletedStorageLocationEvent id=%s uri=%s"
                                             + " reason=local-filter-policy-exclude numCopies=" + numCopies,
@@ -521,7 +522,7 @@ public class ArtifactValidator {
                             "resolve Artifact.id collision: put DeletedArtifactEvent for local %s %s "
                                 + "reason: remote contentLastModified newer than local",
                                 remote.getID(), remote.getURI()));
-                        DeletedArtifactEvent deletedArtifactEvent = new DeletedArtifactEvent(local.getID());
+                        DeletedArtifactEvent deletedArtifactEvent = new DeletedArtifactEvent(local.getID(), local.getURI());
                         log.info(String.format("ArtifactValidator.createDeletedArtifactEvent id=%s uri=%s reason=resolve-collision",
                                 deletedArtifactEvent.getID(), local.getURI()));
                         this.deletedArtifactEventDAO.put(deletedArtifactEvent);
@@ -541,7 +542,7 @@ public class ArtifactValidator {
                             "resolve Artifact.id collision: put DeletedArtifactEvent for remote %s %s "
                                 + "reason: local contentLastModified newer than remote",
                                 remote.getID(), remote.getURI()));
-                        DeletedArtifactEvent deletedArtifactEvent = new DeletedArtifactEvent(remote.getID());
+                        DeletedArtifactEvent deletedArtifactEvent = new DeletedArtifactEvent(remote.getID(), remote.getURI());
                         log.info(String.format("ArtifactValidator.createDeletedArtifactEvent id=%s uri=%s reason=resolve-collision", 
                                 deletedArtifactEvent.getID(), remote.getURI()));
                         this.deletedArtifactEventDAO.put(deletedArtifactEvent);

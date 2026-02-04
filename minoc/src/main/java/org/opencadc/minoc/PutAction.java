@@ -311,7 +311,7 @@ public class PutAction extends ArtifactAction {
             ObsoleteStorageLocation newOSL = null;
             if (existing != null) {
                 DeletedArtifactEventDAO eventDAO = new DeletedArtifactEventDAO(artifactDAO);
-                DeletedArtifactEvent deletedArtifact = new DeletedArtifactEvent(existing.getID());
+                DeletedArtifactEvent deletedArtifact = new DeletedArtifactEvent(existing.getID(), existing.getURI());
                 eventDAO.put(deletedArtifact);
                 profiler.checkpoint("eventDAO.put.ok");
                 

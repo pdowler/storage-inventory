@@ -223,11 +223,11 @@ public class ArtifactSync extends AbstractSync {
                     if (collidingArtifact != null && currentArtifact != null) {
                         // resolve collision
                         if (isRemoteWinner(currentArtifact, artifact, (remoteSiteLocation != null))) {
-                            DeletedArtifactEvent dae = new DeletedArtifactEvent(currentArtifact.getID());
+                            DeletedArtifactEvent dae = new DeletedArtifactEvent(currentArtifact.getID(), currentArtifact.getURI());
                             log.info("ArtifactSync.createDeletedArtifactEvent id=" + dae.getID()
-                                    + " uri=" + currentArtifact.getURI()
+                                    + " uri=" + dae.uri
                                     + " reason=resolve-collision");
-                            daeDAO.put(new DeletedArtifactEvent(currentArtifact.getID()));
+                            daeDAO.put(dae);
                             log.info("ArtifactSync.deleteArtifact id=" + currentArtifact.getID()
                                     + " uri=" + currentArtifact.getURI()
                                     + " contentLastModified=" + df.format(currentArtifact.getContentLastModified())

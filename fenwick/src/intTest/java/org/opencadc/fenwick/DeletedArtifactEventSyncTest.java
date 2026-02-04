@@ -135,8 +135,8 @@ public class DeletedArtifactEventSyncTest {
                     Assert.assertNotNull(emptyIterator);
                     Assert.assertFalse(emptyIterator.hasNext());
 
-                    DeletedArtifactEvent expected1 = new DeletedArtifactEvent(UUID.randomUUID());
-                    DeletedArtifactEvent expected2 = new DeletedArtifactEvent(UUID.randomUUID());
+                    DeletedArtifactEvent expected1 = new DeletedArtifactEvent(UUID.randomUUID(), URI.create("cadc:TEST/alpha"));
+                    DeletedArtifactEvent expected2 = new DeletedArtifactEvent(UUID.randomUUID(), URI.create("cadc:TEST/beta"));
 
                     luskanEnvironment.deletedArtifactEventDAO.put(expected1);
                     luskanEnvironment.deletedArtifactEventDAO.put(expected2);
@@ -184,7 +184,7 @@ public class DeletedArtifactEventSyncTest {
             Thread.sleep(10L);
             
             // insert 1 dae in luskan
-            DeletedArtifactEvent dae2 = new DeletedArtifactEvent(a2.getID());
+            DeletedArtifactEvent dae2 = new DeletedArtifactEvent(a2.getID(), a2.getURI());
             luskanEnvironment.deletedArtifactEventDAO.put(dae2);
             Thread.sleep(10L);
             
