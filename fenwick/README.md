@@ -28,6 +28,9 @@ org.opencadc.fenwick.queryService={resourceID of remote TAP service with invento
 org.opencadc.fenwick.artifactSelector = all | filter
 org.opencadc.fenwick.eventSelector = all | filter
 
+# optional: instance name when selector(s) above are filter
+org.opencadc.fenwick.instanceName = {name}
+
 # optional: threads (default: 1)
 org.opencadc.fenwick.artifactThreads = 1 | 2 | 4 | 8
 
@@ -54,6 +57,11 @@ subset of all files would use the explicit filtering.
 If `eventSelector` is `all` then all events (DeletedArtifactEvent, DeletedStorageLocationEvent, and
 StorageLocationEvent) are synced. If the value is `filter` then fenwick harvests selected events from the remote
 as specified in `event-filter.sql` (see below). **NEW in 1.1**.
+
+The optional `instanceName` must be set if one or both of the above selector(s) is set to `filter`. The value is a
+simple name for this instance so it can track progress without interfering with other instances. _Changing the name
+of an instance can discard progress tracking_ and cause the instance to start over (at the beginning of time); it is
+possible (undocumented) to work around this, but there is currently no mechansim to do this gracefully.
 
 If `artifactThreads` is set, fenwick will run this number of threads when syncing artifacts. It will subdivide the
 workload using the Artifact.uriBucket field so each thread has the same number of events to process. Setting this to
