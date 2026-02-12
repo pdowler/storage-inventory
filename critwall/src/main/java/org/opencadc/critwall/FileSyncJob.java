@@ -285,7 +285,7 @@ public class FileSyncJob implements Runnable {
                                     }
                                 }
                                 StorageLocationEventDAO sleDAO = new StorageLocationEventDAO(artifactDAO);
-                                StorageLocationEvent sle = new StorageLocationEvent(curArtifact.getID());
+                                StorageLocationEvent sle = new StorageLocationEvent(curArtifact.getID(), curArtifact.getURI());
                                 artifactDAO.setStorageLocation(curArtifact, storageMeta.getStorageLocation());
                                 sleDAO.put(sle);
                                 

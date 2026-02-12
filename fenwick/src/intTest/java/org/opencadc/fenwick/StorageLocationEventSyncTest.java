@@ -134,8 +134,8 @@ public class StorageLocationEventSyncTest {
                     Assert.assertNotNull(emptyIterator);
                     Assert.assertFalse(emptyIterator.hasNext());
 
-                    StorageLocationEvent expected1 = new StorageLocationEvent(UUID.randomUUID());
-                    StorageLocationEvent expected2 = new StorageLocationEvent(UUID.randomUUID());
+                    StorageLocationEvent expected1 = new StorageLocationEvent(UUID.randomUUID(), URI.create("cadc:TEST/alpha"));
+                    StorageLocationEvent expected2 = new StorageLocationEvent(UUID.randomUUID(), URI.create("cadc:TEST/beta"));
 
                     luskanEnvironment.storageLocationEventDAO.put(expected1);
                     luskanEnvironment.storageLocationEventDAO.put(expected2);
@@ -199,13 +199,13 @@ public class StorageLocationEventSyncTest {
             Thread.sleep(10L);
             
             // insert 2 events in luskan
-            StorageLocationEvent sle1 = new StorageLocationEvent(a1.getID());
+            StorageLocationEvent sle1 = new StorageLocationEvent(a1.getID(), a1.getURI());
             luskanEnvironment.storageLocationEventDAO.put(sle1);
             Thread.sleep(10L);
-            StorageLocationEvent sle2 = new StorageLocationEvent(a2.getID());
+            StorageLocationEvent sle2 = new StorageLocationEvent(a2.getID(), a2.getURI());
             luskanEnvironment.storageLocationEventDAO.put(sle2);
             Thread.sleep(10L);
-            StorageLocationEvent sle3 = new StorageLocationEvent(UUID.randomUUID());
+            StorageLocationEvent sle3 = new StorageLocationEvent(UUID.randomUUID(), URI.create("cadc:TEST/three")); // diff uuid
             luskanEnvironment.storageLocationEventDAO.put(sle3);
             
             // doit

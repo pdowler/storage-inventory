@@ -579,7 +579,7 @@ public class InventoryValidatorTest {
         }
         this.localEnvironment.artifactDAO.put(artifact);
 
-        DeletedArtifactEvent deletedArtifactEvent = new DeletedArtifactEvent(artifact.getID());
+        DeletedArtifactEvent deletedArtifactEvent = new DeletedArtifactEvent(artifact.getID(), artifact.getURI());
         this.remoteEnvironment.deletedArtifactEventDAO.put(deletedArtifactEvent);
 
         try {
@@ -636,7 +636,7 @@ public class InventoryValidatorTest {
         artifact.siteLocations.add(new SiteLocation(randomSiteID));
         this.localEnvironment.artifactDAO.put(artifact);
 
-        DeletedStorageLocationEvent deletedStorageLocationEvent = new DeletedStorageLocationEvent(artifact.getID());
+        DeletedStorageLocationEvent deletedStorageLocationEvent = new DeletedStorageLocationEvent(artifact.getID(), artifact.getURI());
         this.remoteEnvironment.deletedStorageLocationEventDAO.put(deletedStorageLocationEvent);
 
         try {
@@ -682,7 +682,7 @@ public class InventoryValidatorTest {
         artifact.siteLocations.add(new SiteLocation(remoteSiteID));
         this.localEnvironment.artifactDAO.put(artifact);
 
-        deletedStorageLocationEvent = new DeletedStorageLocationEvent(artifact.getID());
+        deletedStorageLocationEvent = new DeletedStorageLocationEvent(artifact.getID(), artifact.getURI());
         this.remoteEnvironment.deletedStorageLocationEventDAO.put(deletedStorageLocationEvent);
 
         try {
@@ -891,7 +891,7 @@ public class InventoryValidatorTest {
             localEnvironment.storageSiteDAO.put(ss);
         }
 
-        DeletedArtifactEvent deletedArtifactEvent = new DeletedArtifactEvent(artifact.getID());
+        DeletedArtifactEvent deletedArtifactEvent = new DeletedArtifactEvent(artifact.getID(), artifact.getURI());
         this.localEnvironment.deletedArtifactEventDAO.put(deletedArtifactEvent);
 
         try {
@@ -934,7 +934,7 @@ public class InventoryValidatorTest {
                                          new Date(), 1024L);
         remoteEnvironment.artifactDAO.put(artifact);
 
-        DeletedStorageLocationEvent localDeletedStorageLocationEvent = new DeletedStorageLocationEvent(artifact.getID());
+        DeletedStorageLocationEvent localDeletedStorageLocationEvent = new DeletedStorageLocationEvent(artifact.getID(), artifact.getURI());
         localEnvironment.deletedStorageLocationEventDAO.put(localDeletedStorageLocationEvent);
 
         try {
