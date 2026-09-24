@@ -67,63 +67,39 @@
 
 package org.opencadc.inventory.storage.eos;
 
-import ca.nrc.cadc.util.Log4jInit;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
-import org.opencadc.inventory.storage.StorageEngageException;
-import org.opencadc.inventory.storage.StorageMetadata;
 
 /**
  *
  * @author pdowler
  */
-public class EosFindTest {
-    private static final Logger log = Logger.getLogger(EosFindTest.class);
+public class SubPath {
+    private static final Logger log = Logger.getLogger(SubPath.class);
 
-    static {
-        Log4jInit.setLevel("org.opencadc.inventory.storage.eos", Level.INFO);
+    public final String path;
+    public final Integer numFiles;
+    public final boolean shallow;
+
+    public SubPath(String path, Integer numFiles, boolean shallow) {
+        this.path = path;
+        this.numFiles = numFiles;
+        this.shallow = shallow;
     }
 
-    public EosFindTest() { 
+    @Override
+    public String toString() {
+        return "SubPath[" + path + " " + numFiles + " " + shallow + ']';
+    }
+        
+    public static String toString(SubPath s) {
+        return s.path + " " + s.numFiles + " " + s.shallow;
     }
     
-    @Test
-    public void testSubdivide() throws Exception {
-        EosStorageAdapter sa = new EosStorageAdapter();
-        
-        String subpath = "dp2/LSSTCam/calib";
-        
-        EosFind find = new EosFind(sa.mgmServer, sa.mgmPath, sa.authToken, "lsst", subpath, false);
-        find.start();
-        int num = 0;
-        while (find.hasNext()) {
-            StorageMetadata actual = find.next();
-            log.info("found: " + actual);
-            num++;
-            Assert.assertNotNull(actual.getStorageLocation().storageBucket);
-            Assert.assertTrue(actual.getStorageLocation().storageBucket.startsWith(subpath));
-            Assert.assertTrue(actual.isValid());
-        }
-        Assert.assertEquals(6, num);
-        
-        
-    }
-    
-    @Test
-    public void testNoFiles() throws Exception {
-        EosStorageAdapter sa = new EosStorageAdapter();
-        
-        String subpath = "dp2/LSSTCam/calib";
-        try {
-            EosFind find2 = new EosFind(sa.mgmServer, sa.mgmPath, sa.authToken, "lsst", subpath, true);
-            find2.start();
-            // current impl fails if there are no files because of past experience
-            Assert.fail("expected StorageEngageException, got iterator with hasNext=" + find2.hasNext());
-            //Assert.assertFalse(find2.hasNext()); // no files directly in the subpath dir
-        } catch (StorageEngageException ex) {
-            log.info("caught expected: " + ex);
-        }
+    public static SubPath fromString(String s) {
+        String[] ss = s.split(" ");
+        String path = ss[0];
+        int numFiles = Integer.parseInt(ss[1]);
+        boolean shallow = "true".equals(ss[2]);
+        return new SubPath(path, numFiles, shallow);
     }
 }
