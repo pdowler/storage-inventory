@@ -247,15 +247,15 @@ public class LogicalFileSystemStorageAdapter extends AbstractStorageAdapter impl
         return new LogicalIterator(contentPath, storageBucketPrefix);
     }
 
-    @Override
-    protected StorageMetadata createStorageMetadata(Path base, Path p, boolean includeRecoverable) {
-        if (txnPath.equals(base)) {
-            log.warn("in-txn: re-use OpaqueFileSystemStorageAdapter.createStorageMetadataImpl");
-            return OpaqueFileSystemStorageAdapter.createStorageMetadataImpl(base, p, includeRecoverable);
-        }
+    //@Override
+    //protected StorageMetadata createStorageMetadata(Path base, Path p, boolean includeRecoverable) {
+    //    if (txnPath.equals(base)) {
+    //        log.warn("in-txn: re-use OpaqueFileSystemStorageAdapter.createStorageMetadataImpl");
+    //        return OpaqueFileSystemStorageAdapter.createStorageMetadataImpl(base, p, includeRecoverable);
+    //    }
         // content
-        return createStorageMetadataImpl(base, p, includeRecoverable);
-    }
+    //    return createStorageMetadataImpl(base, p, includeRecoverable);
+    //}
     
     // content
     static StorageMetadata createStorageMetadataImpl(Path base, Path p, boolean includeRecoverable) {
@@ -264,7 +264,7 @@ public class LogicalFileSystemStorageAdapter extends AbstractStorageAdapter impl
         
         URI artifactID = URI.create(rel.toString());
         
-        StorageLocation storageLocation = createStorageLocationImpl(artifactID);
+        StorageLocation storageLocation = pathToStorageLocation(base, p, false);
         try {
             URI checksum = new URI(AbstractStorageAdapter.getFileAttribute(p, LogicalFileSystemStorageAdapter.CHECKSUM_ATTRIBUTE_NAME));
             long length = Files.size(p);
@@ -316,4 +316,19 @@ public class LogicalFileSystemStorageAdapter extends AbstractStorageAdapter impl
         return ret;
     }
 
+    @Override
+    protected StorageLocation pathToStorageLocation(Path base, Path p) {
+        return LogicalFileSystemStorageAdapter.pathToStorageLocation(base, p, true);
+    }
+
+    static StorageLocation pathToStorageLocation(Path base, Path p, boolean fixTxn) {
+        Path rel = base.relativize(p);
+        log.debug("base: " + base + " path: " + p + " rel: " + rel);
+        
+        URI artifactID = URI.create(rel.toString());
+        
+        StorageLocation storageLocation = createStorageLocationImpl(artifactID);
+        return storageLocation;
+    }
+    
 }

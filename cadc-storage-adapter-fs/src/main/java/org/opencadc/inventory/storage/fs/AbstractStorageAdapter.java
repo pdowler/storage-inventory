@@ -647,7 +647,8 @@ abstract class AbstractStorageAdapter implements StorageAdapter {
                 
                 PutTransaction pt = new PutTransaction(transactionID, PT_MIN_BYTES, PT_MAX_BYTES);
                 if (prevLength > 0L) {
-                    pt.storageMetadata = createStorageMetadata(txnPath, txnFile, false);
+                    StorageLocation loc = pathToStorageLocation(txnPath, txnFile);
+                    pt.storageMetadata = createStorageMetadata(loc, txnPath, txnFile, false);
                 }
                 return pt;
             }
@@ -673,14 +674,14 @@ abstract class AbstractStorageAdapter implements StorageAdapter {
                 throw new IllegalArgumentException("unknown transaction: " + transactionID);
             }
         } catch (IOException ex) {
-            throw new StorageEngageException("failed to create transaction", ex);
+            throw new StorageEngageException("failed to abort transaction", ex);
         }
     }
     
     @Override
     public PutTransaction getTransactionStatus(String transactionID)
         throws IllegalArgumentException, StorageEngageException, TransientException {
-        InventoryUtil.assertNotNull(LogicalFileSystemStorageAdapter.class, "transactionID", transactionID);
+        InventoryUtil.assertNotNull(AbstractStorageAdapter.class, "transactionID", transactionID);
         try {
             // validate
             UUID.fromString(transactionID);
@@ -689,7 +690,8 @@ abstract class AbstractStorageAdapter implements StorageAdapter {
             if (Files.exists(txnFile)) {
                 PutTransaction pt = new PutTransaction(transactionID, PT_MIN_BYTES, PT_MAX_BYTES);
                 if (Files.size(txnFile) > 0) {
-                    pt.storageMetadata = createStorageMetadata(txnPath, txnFile, false);
+                    StorageLocation loc = pathToStorageLocation(txnPath, txnFile);
+                    pt.storageMetadata = createStorageMetadata(loc, txnPath, txnFile, false);
                 }
                 return pt;
             }
@@ -732,14 +734,15 @@ abstract class AbstractStorageAdapter implements StorageAdapter {
 
             // atomic move into content directory
             final Path result = Files.move(txnTarget, contentTarget, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-            log.debug("committed: " + result);
+            log.warn("committed: " + result + " aka " + sm.getStorageLocation());
             
             // defensive check in case commit tweaked lastModified timestamp slightly:
             Date d2 = new Date(Files.getLastModifiedTime(contentTarget).toMillis());
             long delta = d2.getTime() - sm.getContentLastModified().getTime();
             if (delta != 0L) {
-                log.debug("commit-induced delta lastModified: " + delta + " - recreate StorageMetadata from path");
-                sm = createStorageMetadata(contentPath, contentTarget, false);
+                log.warn("commit-induced delta lastModified: " + delta + " - recreate StorageMetadata from path");
+                StorageLocation loc = pathToStorageLocation(contentPath, contentTarget);
+                sm = createStorageMetadata(loc, contentPath, contentTarget, false);
             }
 
             return sm;
@@ -752,5 +755,42 @@ abstract class AbstractStorageAdapter implements StorageAdapter {
 
     protected abstract Path storageLocationToPath(StorageLocation loc);
     
-    protected abstract StorageMetadata createStorageMetadata(Path base, Path p, boolean includeRecoverable);
+    protected abstract StorageLocation pathToStorageLocation(Path base, Path p);
+    
+    // static easier to use from iterator
+    static StorageMetadata createStorageMetadata(StorageLocation sloc, Path base, Path p, boolean includeRecoverable) {
+        try {
+            String csAttr = getFileAttribute(p, CHECKSUM_ATTR);
+            String aidAttr = getFileAttribute(p, ARTIFACTID_ATTR);
+            if (csAttr == null || aidAttr == null) {
+                // this could happen if some were to copy files or the whole filesystem to
+                // a new storage area and not preserve xattrs (eg rsync without -X/--xattrs)
+
+                // for now, just warn and skip so the operator has a chance to correct
+                log.warn("SKIP invalid: " + sloc + " : missing required attribute(s)"
+                    + " " + OpaqueFileSystemStorageAdapter.CHECKSUM_ATTR + "=" + csAttr
+                    + " " + OpaqueFileSystemStorageAdapter.ARTIFACTID_ATTR + "=" + aidAttr);
+                return null;
+            }
+            URI contentChecksum = new URI(csAttr);
+            long contentLength = Files.size(p);
+            URI artifactURI = new URI(aidAttr);
+
+            String delAttr = getFileAttribute(p, DELETED_PRESERVED);
+            if ("true".equals(delAttr) && !includeRecoverable) {
+                log.debug("skip " + DELETED_PRESERVED + ": " + sloc + " aka " + artifactURI);
+                return null;
+            }
+            StorageMetadata ret = new StorageMetadata(sloc, artifactURI, contentChecksum, contentLength, 
+                    new Date(Files.getLastModifiedTime(p).toMillis()));
+            ret.deleteRecoverable = "true".equals(delAttr);
+            log.debug("createStorageMetadata: " + ret + " " + ret.deleteRecoverable);
+            return ret;
+        } catch (FileSystemException | IllegalArgumentException | URISyntaxException ex) {
+            log.debug("invalid stored object", ex);
+            return new StorageMetadata(sloc); // missing attrs: invalid stored object
+        } catch (IOException ex) {
+            throw new StorageEngageException("failed to read FS attributes: " + p, ex);
+        }
+    }
 }
